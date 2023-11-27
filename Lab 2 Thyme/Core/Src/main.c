@@ -47,12 +47,14 @@ DAC_HandleTypeDef hdac1;
 UART_HandleTypeDef hlpuart1;
 
 /* USER CODE BEGIN PV */
+uint16_t Vout = 0;
+uint16_t Vout_before = 0;
 struct _ADC_tag
 {
 ADC_ChannelConfTypeDef Config;
 uint16_t data;
 };
-struct _ADC_tag ADC1_Channel[2] =
+struct _ADC_tag ADC1_Channel[1] =
 {
 {
 .Config.Channel = ADC_CHANNEL_1,
@@ -63,15 +65,6 @@ struct _ADC_tag ADC1_Channel[2] =
 .Config.Offset = 0,
 .data = 0
 },
-{
-.Config.Channel = ADC_CHANNEL_TEMPSENSOR_ADC1,
-.Config.Rank = ADC_REGULAR_RANK_1,
-.Config.SamplingTime = ADC_SAMPLETIME_640CYCLES_5,
-.Config.SingleDiff = ADC_SINGLE_ENDED,
-.Config.OffsetNumber = ADC_OFFSET_NONE,
-.Config.Offset = 0,
-.data = 0
-}
 };
 uint16_t DAC_Output=0;
 /* USER CODE END PV */
@@ -397,12 +390,11 @@ void ADC_Read_blocking()
 static uint32_t TimeStamp = 0;
 if( HAL_GetTick()<TimeStamp) return;
 TimeStamp = HAL_GetTick()+500;
-for(int i=0;i<2;i++)
 {
-HAL_ADC_ConfigChannel(&hadc1, &ADC1_Channel[i].Config);
+HAL_ADC_ConfigChannel(&hadc1, &ADC1_Channel[1].Config);
 HAL_ADC_Start(&hadc1);
 HAL_ADC_PollForConversion(&hadc1, 100);
-ADC1_Channel[i].data = HAL_ADC_GetValue(&hadc1);
+ADC1_Channel[1].data = HAL_ADC_GetValue(&hadc1);
 HAL_ADC_Stop(&hadc1);
 }
 }
