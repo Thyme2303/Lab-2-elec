@@ -47,24 +47,24 @@ DAC_HandleTypeDef hdac1;
 UART_HandleTypeDef hlpuart1;
 
 /* USER CODE BEGIN PV */
-uint16_t Vout = 0;
-uint16_t Vout_before = 0;
-struct _ADC_tag
-{
-ADC_ChannelConfTypeDef Config;
-uint16_t data;
-};
-struct _ADC_tag ADC1_Channel[1] =
-{
-{
-.Config.Channel = ADC_CHANNEL_1,
-.Config.Rank = ADC_REGULAR_RANK_1,
-.Config.SamplingTime = ADC_SAMPLETIME_640CYCLES_5,
-.Config.SingleDiff = ADC_SINGLE_ENDED,
-.Config.OffsetNumber = ADC_OFFSET_NONE,
-.Config.Offset = 0,
-.data = 0
-},
+	uint16_t Vout = 0;
+	uint16_t Vout_before = 0;
+	struct _ADC_tag
+	{
+	ADC_ChannelConfTypeDef Config;
+	uint16_t data;
+	};
+	struct _ADC_tag ADC1_Channel[1] =
+	{
+	{
+	.Config.Channel = ADC_CHANNEL_1,
+	.Config.Rank = ADC_REGULAR_RANK_1,
+	.Config.SamplingTime = ADC_SAMPLETIME_640CYCLES_5,
+	.Config.SingleDiff = ADC_SINGLE_ENDED,
+	.Config.OffsetNumber = ADC_OFFSET_NONE,
+	.Config.Offset = 0,
+	.data = 0,
+	}
 };
 uint16_t DAC_Output=0;
 /* USER CODE END PV */
@@ -131,6 +131,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  ADC_Read_blocking();
   	  DAC_Update();
+  	  Vout = DAC_Output/4095.0*3300;
   }
   /* USER CODE END 3 */
 }
@@ -385,27 +386,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void ADC_Read_blocking()
-{
-static uint32_t TimeStamp = 0;
-if( HAL_GetTick()<TimeStamp) return;
-TimeStamp = HAL_GetTick()+500;
-{
-HAL_ADC_ConfigChannel(&hadc1, &ADC1_Channel[1].Config);
-HAL_ADC_Start(&hadc1);
-HAL_ADC_PollForConversion(&hadc1, 100);
-ADC1_Channel[1].data = HAL_ADC_GetValue(&hadc1);
-HAL_ADC_Stop(&hadc1);
+void ADC_Read_blocking(){
+	static uint32_t TimeStamp = 0;
+	if( HAL_GetTick()<TimeStamp) return;
+	TimeStamp = HAL_GetTick()+500;
+
+	HAL_ADC_ConfigChannel(&hadc1, &ADC1_Channel[0].Config);
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, 100);
+	ADC1_Channel[0].data = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Stop(&hadc1);
 }
-}
-void DAC_Update()
-{
-static uint32_t timeStamp =0;
-if(HAL_GetTick()>timeStamp)
-{
-timeStamp = HAL_GetTick()+500;
-HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_Output);
-}
+	void DAC_Update(){
+	static uint32_t timeStamp =0;
+	if(HAL_GetTick()>timeStamp){
+	timeStamp = HAL_GetTick()+750;
+	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DAC_Output);
+	}
 }
 /* USER CODE END 4 */
 
