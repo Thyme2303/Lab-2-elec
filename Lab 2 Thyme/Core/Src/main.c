@@ -49,6 +49,7 @@ UART_HandleTypeDef hlpuart1;
 /* USER CODE BEGIN PV */
 	uint16_t Vout = 0;
 	uint16_t Vout_before = 0;
+	uint16_t mv = 0;
 	struct _ADC_tag
 	{
 	ADC_ChannelConfTypeDef Config;
@@ -131,7 +132,6 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  ADC_Read_blocking();
   	  DAC_Update();
-  	  Vout = DAC_Output/4095.0*3300;
   }
   /* USER CODE END 3 */
 }
@@ -395,6 +395,7 @@ void ADC_Read_blocking(){
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 100);
 	ADC1_Channel[0].data = HAL_ADC_GetValue(&hadc1);
+	mv = (ADC1_Channel[0].data) * 1023 / 3300.0;
 	HAL_ADC_Stop(&hadc1);
 }
 	void DAC_Update(){
